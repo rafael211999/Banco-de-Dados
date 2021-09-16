@@ -1,0 +1,209 @@
+{\rtf1\ansi\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset1 Segoe UI Symbol;}}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang22 O projeto final de Banco de dados deve conter as tabelas obrigat\'f3rias:\par
+\f1\u9679?\f0  Cliente\par
+\f1\u9679?\f0  Pedido\par
+\f1\u9679?\f0  PedidoItem\par
+\f1\u9679?\f0  Produto\par
+\f1\u9679?\f0  Categoria\par
+\f1\u9679?\f0  NotaFiscal\par
+\f1\u9679?\f0  Usu\'e1rio\par
+\par
+Levantamento de requisitos:\par
+E-commerce tradicional\par
+Uma empresa do com\'e9rcio varejista deseja realizar a venda de seus produtos pela\par
+internet e para isso precisa de um sistema capaz de realizar o controle de estoque e\par
+cadastro de clientes. A empresa \'e9 respons\'e1vel pela produ\'e7\'e3o de seus pr\'f3prios\par
+produtos e por isso n\'e3o precisa registrar dados de fornecedores externos. O sistema\par
+n\'e3o tem como objetivo registrar detalhes da produ\'e7\'e3o. Sendo assim, a seguir s\'e3o\par
+descritos os requisitos e os dados que a empresa julga serem necess\'e1rios para o\par
+funcionamento do sistema:\par
+1. O sistema deve ser capaz de armazenar informa\'e7\'f5es sobre os produtos da\par
+empresa, sendo eles: c\'f3digo, nome, descri\'e7\'e3o, quantidade em estoque, data\par
+de fabrica\'e7\'e3o e valor unit\'e1rio.\par
+2. Ao cadastrar um produto no sistema, os funcion\'e1rios da empresa devem ser\par
+capazes de associ\'e1-lo \'e0 uma categoria. Cada produto s\'f3 poder\'e1 pertencer \'e0\par
+uma categoria.\par
+3. Se o produto j\'e1 estiver cadastrado no sistema, o colaborador dever\'e1 apenas\par
+atualizar a quantidade de itens no estoque.\par
+4. Para cada categoria de produto, \'e9 necess\'e1rio registrar: c\'f3digo, nome e\par
+descri\'e7\'e3o.\par
+5. O sistema dever\'e1 armazenar dados dos clientes, que devem ser: c\'f3digo,\par
+nome completo, nome de usu\'e1rio, e-mail, cpf, data de nascimento e\par
+endere\'e7o.\par
+6. Atrav\'e9s do sistema, os clientes podem realizar pedidos.\par
+7. Cada pedido deve conter um ou mais produtos, a data em que foi realizado e\par
+por quem foi realizado.\par
+8. Um pedido pode ter mais de um item de um mesmo produto, de acordo com\par
+a quantidade dispon\'edvel em estoque.\par
+9. Sobre os funcion\'e1rios, \'e9 necess\'e1rio guardar apenas um c\'f3digo, nome e cpf.\par
+PLUS: Caso consigam, seria interessante saber qual funcion\'e1rio cadastrou o produto.\par
+\par
+Aplicando o que aprendemos:\par
+1. Diagrama ER (primeira vers\'e3o)\par
+2. Diagrama ER (depois da normaliza\'e7\'e3o)\par
+\ul\b\i 3. SQL de cria\'e7\'e3o das tabelas\ulnone\b0\i0\par
+\par
+CREATE DATABASE ecommerce;\par
+\par
+CREATE TABLE usuario(\par
+  cod_usario SERIAL PRIMARY KEY,\par
+  nome_usuario varchar(50) NOT NULL UNIQUE,\par
+  email varchar(120) NOT NULL UNIQUE,\par
+  senha char(8)\par
+);\par
+\par
+CREATE TABLE cliente(\par
+  cod_cliente SERIAL PRIMARY KEY,\par
+  nome_completo varchar (50) NOT NULL,\par
+ fk_nome_usuario varchar(50) NOT NULL UNIQUE REFERENCES usuario(nome_usuario) ON UPDATE CASCADE,\par
+  fk_email varchar(120) NOT NULL UNIQUE REFERENCES usuario(email) ON UPDATE CASCADE,\par
+  cpf char(11) NOT NULL UNIQUE,\par
+  data_nascimento date NOT NULL,\par
+  endereco varchar(200) NOT NULL\par
+);\par
+\par
+CREATE TABLE funcionario(\par
+  cod_funcionario SERIAL PRIMARY KEY,\par
+  nomeCompleto varchar(50) NOT NULL,\par
+  cpf char(11) NOT NULL UNIQUE\par
+);\par
+\par
+CREATE TABLE categoria(\par
+  cod_catergoria SERIAL PRIMARY KEY,\par
+  nome varchar(50) NOT NULL UNIQUE,\par
+  descricao varchar(200)\par
+);\par
+\par
+CREATE TABLE produto(\par
+  cod_produto SERIAL PRIMARY KEY,\par
+  nome varchar(50) NOT NULL UNIQUE,\par
+  descricao varchar(200),\par
+  qtd_em_estoque int,\par
+  data_fabricacao date,\par
+  valor_unitario float,\par
+  fk_cod_catergoria int REFERENCES categoria(cod_catergoria) ON UPDATE CASCADE,\par
+  fk_cod_funcionario int REFERENCES funcionario(cod_funcionario) ON UPDATE CASCADE\par
+);\par
+\par
+CREATE TABLE pedido(\par
+  cod_pedido SERIAL PRIMARY KEY,\par
+  fk_cod_cliente int REFERENCES cliente(cod_cliente) ON UPDATE CASCADE,\par
+  data_pedido date NOT NULL\par
+);\par
+\par
+CREATE TABLE pedidoItem(\par
+  fk_cod_pedido int NOT NULL REFERENCES pedido(cod_pedido) ON UPDATE CASCADE,\par
+  cod_item int NOT NULL,\par
+  fk_cod_produto int NOT NULL REFERENCES produto(cod_produto) ON UPDATE CASCADE,\par
+  qtd_produto int NOT NULL,\par
+  PRIMARY KEY (fk_cod_pedido, cod_item)\par
+);\par
+\par
+CREATE TABLE nota_fiscal(\par
+  numero_notafiscal SERIAL PRIMARY KEY, --tbm o codigo da tabela\par
+  fk_cod_cliente int REFERENCES cliente(cod_cliente) ON UPDATE CASCADE,\par
+  fk_cod_pedido int REFERENCES pedido(cod_pedido) ON UPDATE CASCADE\par
+);\par
+\par
+\ul\b\i 4. SQL de inser\'e7\'e3o de dados nas tabelas (pelo menos 5 registros em cada uma)\ulnone\b0\i0\par
+INSERT INTO usuario(nome_usuario, email, senha)\par
+  VALUES ('rafaalves', 'rafaalves.s@gmail.com', 'rafa1234'),\par
+  ('gillima', 'gil.Lima@gmail.com','gil12345'),\par
+  ('tardin', 'tardincarol@gmail.com', '@carol78'),\par
+  ('marcella', 'malzuguir@gmail.com', 'ma#12345'),\par
+  ('lfita', 'lfita@gmail.com', '87654321'),\par
+  ('dfaria', 'diegofaria13@gmail.com', 'diegofa#');\par
+\par
+INSERT INTO cliente(nome_completo, fk_nome_usuario, fk_email, cpf, data_nascimento, endereco)\par
+   VALUES \par
+ ('Rafael Alves de Souza', 'rafaalves', 'rafaalves.s@gmail.com', '15426575470', '1999-10-08', 'Rua carmelia Lucinda N:188'),\par
+('Gilnei Lima da Costa', 'gillima', 'gil.Lima@gmail.com', '12423688471', '1987-07-01', 'Rua Jorge Pinto N:03'),\par
+('Carolina Tardin', 'tardin', 'tardincarol@gmail.com', '38429576120', '1995-12-5', 'Rua Carmani Freitas N:732'),\par
+('Marcella Alzuguir', 'marcella', 'malzuguir@gmail.com', '55729475620', '1990-04-10', 'Rua Pablo Escobar N:3445'),\par
+('Leandro Fita', 'lfita', 'lfita@gmail.com', '45426577461', '1998-03-12', 'Rua Lacerda Costa N:664'),\par
+('Diego Faria', 'dfaria', 'diegofaria13@gmail.com', '20124287461', '1989-04-30', 'Rua Lipp Souza N:999');\par
+\par
+INSERT INTO funcionario(nomeCompleto, cpf)\par
+VALUES \par
+    ('Maria da Silva', '75864669040'),\par
+    ('Joao Oliveira', '65688040061'),\par
+    ('Juliana Neves', '94367851001'),\par
+    ('Miguel Xavier', '31742757090'),\par
+    ('Joana Duarte', '49293208016');\par
+\par
+INSERT INTO categoria(nome, descricao)\par
+VALUES \par
+('Smartphones', 'Aparelho celular com acesso a internet'),\par
+('Eletrodom\'e9sticos', 'Aparelhos dom\'e9sticos eletr\'f4nicos'),\par
+('Roupa', 'Camisas, cal\'e7as, bermudas, vestidos, blusas e mais.'),\par
+('Produtos de limpeza', 'Produtos para limpeza de ambientes'),\par
+('Beleza', 'Produtos de beleza');\par
+    \par
+INSERT INTO produto(nome, descricao, qtd_em_estoque, data_fabricacao, valor_unitario, fk_cod_catergoria, fk_cod_funcionario)\par
+VALUES \par
+    ('Cal\'e7a Jeans', 'Cal\'e7a masculina reta', 20, '2020-08-30', 60.99, 3, 2),\par
+    ('Camisa', 'Camisa gola V, branca', 15, '2020-07-26', 45.99, 3, 1),\par
+    ('Bermuda', 'Bermuda cargo verde musgo', 45, '2020-12-06', 75.99, 3, 4),\par
+    ('Desodorante', 'Desodorante 24h, floral, spray', 55, '2020-09-10', 9.90, 4, 4),\par
+    ('Saia', 'Saia reta vermelha', 15, '2020-06-05', 85.99, 3, 4),\par
+    ('Celular', 'Smartphone 5, Android, azul', 100, '2021-03-25', 805.99, 1, 4);\par
+\par
+INSERT INTO pedido(fk_cod_cliente,data_pedido)\par
+VALUES \par
+  (1, '2021-07-25'),\par
+  (2, '2021-08-14'),\par
+  (3, '2021-08-18'),\par
+  (4, '2021-09-05'),\par
+  (5, '2021-09-05'),\par
+  (6, '2021-09-10');\par
+\par
+INSERT INTO pedidoItem(fk_cod_pedido, cod_item, fk_cod_produto, qtd_produto)\tab\par
+VALUES (1,1,1,5), (1,2,5,20), (1,3,3,15), (1,4,1,20), (2,1,2,30), (2,2,1,0), (3,1,1,2), (3,2,2,4), (4,1,3,12), (4,2,1,10), (5,1,3,21);\par
+\par
+INSERT INTO nota_fiscal(fk_cod_cliente, fk_cod_pedido)\par
+VALUES (1,1), (2,2), (3,3), (4,4), (5,5);\par
+\ul\b\i\par
+5. Um comando SQL de atualiza\'e7\'e3o em algum registro em uma tabela\ulnone\b0\i0\par
+UPDATE cliente\par
+SET nome_completo = 'Caio Dantas' WHERE cod_cliente = 5\par
+\par
+UPDATE cliente\par
+SET endereco  = 'Rua Coltinho Souza Lheiras' WHERE cod_cliente = 3\par
+\par
+\ul\b\i 6. Um comando SQL de exclus\'e3o de algum registro em uma tabela\ulnone\b0\i0\par
+\par
+DELETE FROM funcionario\par
+WHERE nomeCompleto LIKE 'Joana %'\par
+\par
+\ul\b\i 7. Cinco SQLs de consulta\ulnone\b0\i0\par
+\b\i a. Pelo menos 2 com algum tipo de jun\'e7\'e3o.\b0\i0\par
+\par
+SELECT prod.nome, cli.nome_completo, ped.data_pedido FROM produto AS prod\par
+INNER JOIN cliente AS cli ON prod.cod_produto = cli.cod_cliente\par
+INNER JOIN pedido AS ped ON prod.cod_produto = ped.cod_pedido\par
+\par
+SELECT prod.nome AS Produto, cat.nome AS Categoria FROM produto AS prod\par
+INNER JOIN categoria AS cat ON prod.fk_cod_catergoria = cat.cod_catergoria\par
+\par
+SELECT nome_completo, nome,  valor_unitario, qtd_produto, qtd_produto * valor_unitario                                     \par
+FROM cliente as c INNER JOIN pedido as p ON c.cod_cliente = p.fk_cod_cliente\par
+INNER JOIN pedidoItem as pi ON pi.fk_cod_pedido = p.cod_pedido\par
+INNER JOIN produto as pdt ON pdt.cod_produto = pi.fk_cod_produto;\par
+\par
+\b\i b. Pelo menos 1 com usando count() e group by().\b0\i0\par
+\par
+SELECT fk_cod_produto AS codProduto, COUNT(cod_item) as tot_PEDIDO, SUM(qtd_produto) as total_PRODUTO\par
+FROM pedidoItem\par
+GROUP BY fk_cod_produto\par
+ORDER BY codProduto;\par
+\b\i\par
+c. 1 SQL para constru\'e7\'e3o de nota fiscal.\par
+\b0\i0\par
+SELECT numero_notafiscal, cod_cliente, nome_completo, fk_email, cpf, data_nascimento, endereco, pi.fk_cod_pedido, cod_item, fk_cod_produto, qtd_produto\par
+FROM nota_fiscal as nf INNER JOIN cliente as c ON nf.fk_cod_cliente = c.cod_cliente\par
+INNER JOIN pedido as p ON nf.fk_cod_pedido = p.cod_pedido\par
+INNER JOIN pedidoItem as pi ON p.cod_pedido = pi.fk_cod_pedido\par
+\par
+}
+ 
